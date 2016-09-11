@@ -18,20 +18,30 @@
 package me.raatiniemi.todify.api.service;
 
 import me.raatiniemi.todify.api.model.Note;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
+@RestController
 class NoteService {
     private Collection<Note> notes = new ArrayList<>();
 
-    Note add(String text) {
+    @ResponseStatus(code = HttpStatus.CREATED)
+    @RequestMapping(method = RequestMethod.POST, value = "/todo")
+    Note add(@RequestBody String text) {
         Note note = new Note(text);
         notes.add(note);
 
         return note;
     }
 
+    @RequestMapping(method = RequestMethod.GET, value = "/todo")
     Collection<Note> get() {
         return notes;
     }
