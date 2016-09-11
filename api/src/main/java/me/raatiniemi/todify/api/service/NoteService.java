@@ -15,41 +15,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.raatiniemi.todify.api.model;
+package me.raatiniemi.todify.api.service;
 
-import java.util.Objects;
+import me.raatiniemi.todify.api.model.Note;
 
-public class Note {
-    private String text;
+import java.util.ArrayList;
+import java.util.Collection;
 
-    public Note(String text) {
-        this.text = text;
+class NoteService {
+    private Collection<Note> notes = new ArrayList<>();
+
+    Note add(String text) {
+        Note note = new Note(text);
+        notes.add(note);
+
+        return note;
     }
 
-    public String getText() {
-        return this.text;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-
-        if (!(o instanceof Note)) {
-            return false;
-        }
-
-        Note note = (Note) o;
-        return Objects.equals(getText(), note.getText());
-
-    }
-
-    @Override
-    public int hashCode() {
-        int result = 17;
-        result = 31 * result + Objects.hashCode(getText());
-
-        return result;
+    Collection<Note> get() {
+        return notes;
     }
 }
