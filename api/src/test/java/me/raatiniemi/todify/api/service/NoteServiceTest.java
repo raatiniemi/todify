@@ -27,6 +27,7 @@ import java.util.Collection;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(JUnit4.class)
@@ -75,5 +76,37 @@ public class NoteServiceTest {
         }
 
         assertEquals(expected, service.get());
+    }
+
+    @Test
+    public void get_oneNoteFromSingleNoteList() {
+        String text = "Note #1";
+
+        service.add(text);
+
+        Note expected = new Note(1, "Note #1");
+        assertEquals(expected, service.get(1));
+    }
+
+    @Test
+    public void get_oneNoteFromNoteList() {
+        String[] notes = new String[]{
+                "Note #1",
+                "Note #2",
+                "Note #3",
+                "Note #4"
+        };
+
+        for (String note : notes) {
+            service.add(note);
+        }
+
+        Note expected = new Note(4, "Note #4");
+        assertEquals(expected, service.get(4));
+    }
+
+    @Test
+    public void get_oneNoteWithoutMatchingNote() {
+        assertNull(service.get(1));
     }
 }

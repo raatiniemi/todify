@@ -19,6 +19,7 @@ package me.raatiniemi.todify.api.service;
 
 import me.raatiniemi.todify.api.model.Note;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -46,5 +47,14 @@ class NoteService {
     @RequestMapping(method = RequestMethod.GET, value = "/todo")
     Collection<Note> get() {
         return notes;
+    }
+
+    @RequestMapping(method = RequestMethod.GET, value = "/todo/{id}")
+    Note get(@PathVariable("id") long id) {
+        // TODO: if note is not present, return 404.
+        return notes.stream()
+                .filter(note -> id == note.getId())
+                .findFirst()
+                .orElse(null);
     }
 }
