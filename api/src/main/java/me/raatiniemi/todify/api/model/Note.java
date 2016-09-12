@@ -17,15 +17,20 @@
 
 package me.raatiniemi.todify.api.model;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 import java.util.Objects;
 
+@Entity
+@SuppressWarnings({"unused", "WeakerAccess"})
 public class Note {
+    @Id
+    @GeneratedValue
     private long id;
     private String text;
 
-    public Note(long id, String text) {
-        this.id = id;
-        this.text = text;
+    Note() {
     }
 
     public Note(String text) {
@@ -53,7 +58,6 @@ public class Note {
         Note note = (Note) o;
         return getId() == note.getId()
                 && Objects.equals(getText(), note.getText());
-
     }
 
     @Override

@@ -18,95 +18,47 @@
 package me.raatiniemi.todify.api.service;
 
 import me.raatiniemi.todify.api.model.Note;
+import me.raatiniemi.todify.api.repository.NoteRepository;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 @RunWith(JUnit4.class)
 public class NoteServiceTest {
-    private NoteService service = new NoteService();
+    private NoteRepository noteRepository;
+    private NoteService service;
+
+    @Before
+    public void setUp() {
+        noteRepository = mock(NoteRepository.class);
+        service = new NoteService(noteRepository);
+    }
 
     @Test
     public void add() {
         String text = "Note #1";
 
-        Note note = service.add(text);
-
-        assertEquals(1, note.getId());
-        assertEquals(text, note.getText());
-    }
-
-    @Test
-    public void get_withoutNotes() {
-        Collection<Note> notes = service.get();
-
-        assertTrue(notes.isEmpty());
-    }
-
-    @Test
-    public void get_withNote() {
-        List<Note> expected = new ArrayList<>();
-        String text = "Note #1";
-
-        expected.add(service.add(text));
-
-        assertEquals(expected, service.get());
-    }
-
-    @Test
-    public void get_withNotes() {
-        List<Note> expected = new ArrayList<>();
-        String[] notes = new String[]{
-                "Note #1",
-                "Note #2",
-                "Note #3",
-                "Note #4"
-        };
-
-        for (String note : notes) {
-            expected.add(service.add(note));
-        }
-
-        assertEquals(expected, service.get());
-    }
-
-    @Test
-    public void get_oneNoteFromSingleNoteList() {
-        String text = "Note #1";
-
         service.add(text);
 
-        Note expected = new Note(1, "Note #1");
-        assertEquals(expected, service.get(1));
+        verify(noteRepository).save(new Note(text));
     }
 
     @Test
-    public void get_oneNoteFromNoteList() {
-        String[] notes = new String[]{
-                "Note #1",
-                "Note #2",
-                "Note #3",
-                "Note #4"
-        };
+    public void get() {
+        service.get();
 
-        for (String note : notes) {
-            service.add(note);
-        }
-
-        Note expected = new Note(4, "Note #4");
-        assertEquals(expected, service.get(4));
+        verify(noteRepository).findAll();
     }
 
     @Test
-    public void get_oneNoteWithoutMatchingNote() {
-        assertNull(service.get(1));
+    public void get_singular() {
+        service.get(1);
+
+        verify(noteRepository).findOne(eq(1L));
     }
 }

@@ -18,43 +18,34 @@
 package me.raatiniemi.todify.api.service;
 
 import me.raatiniemi.todify.api.model.Note;
+import me.raatiniemi.todify.api.repository.NoteRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.List;
 
 @RestController
 class NoteService {
-    private AtomicLong incrementalCounter = new AtomicLong();
-    private Collection<Note> notes = new ArrayList<>();
+    private NoteRepository noteRepository;
+
+    NoteService(@Autowired NoteRepository noteRepository) {
+        this.noteRepository = noteRepository;
+    }
 
     @ResponseStatus(code = HttpStatus.CREATED)
     @RequestMapping(method = RequestMethod.POST, value = "/todo")
     Note add(@RequestBody String text) {
-        Note note = new Note(incrementalCounter.incrementAndGet(), text);
-        notes.add(note);
-
-        return note;
+        return noteRepository.save(new Note(text));
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/todo")
-    Collection<Note> get() {
-        return notes;
+    List<Note> get() {
+        return noteRepository.findAll();
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/todo/{id}")
     Note get(@PathVariable("id") long id) {
-        // TODO: if note is not present, return 404.
-        return notes.stream()
-                .filter(note -> id == note.getId())
-                .findFirst()
-                .orElse(null);
+        return noteRepository.findOne(id);
     }
 }

@@ -26,7 +26,10 @@ buildscript {
 
 dependencies {
     compile 'org.springframework.boot:spring-boot-starter-web'
+    compile 'org.springframework.boot:spring-boot-starter-data-jpa'
+    compile 'com.h2database:h2'
 
     testCompile 'org.springframework.boot:spring-boot-starter-test'
     testCompile 'junit:junit:4.11'
+    testCompile 'org.mockito:mockito-core:1.10.19'
 }
