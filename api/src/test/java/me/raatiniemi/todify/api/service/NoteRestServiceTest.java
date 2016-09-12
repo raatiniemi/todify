@@ -29,14 +29,14 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 @RunWith(JUnit4.class)
-public class NoteServiceTest {
+public class NoteRestServiceTest {
     private NoteRepository noteRepository;
-    private NoteService service;
+    private NoteRestService service;
 
     @Before
     public void setUp() {
         noteRepository = mock(NoteRepository.class);
-        service = new NoteService(noteRepository);
+        service = new NoteRestService(noteRepository);
     }
 
     @Test

@@ -26,10 +26,10 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-class NoteService {
+class NoteRestService {
     private NoteRepository noteRepository;
 
-    NoteService(@Autowired NoteRepository noteRepository) {
+    NoteRestService(@Autowired NoteRepository noteRepository) {
         this.noteRepository = noteRepository;
     }
 
