@@ -39,6 +39,7 @@ public class NoteServiceTest {
 
         Note note = service.add(text);
 
+        assertEquals(1, note.getId());
         assertEquals(text, note.getText());
     }
 

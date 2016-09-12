@@ -20,10 +20,20 @@ package me.raatiniemi.todify.api.model;
 import java.util.Objects;
 
 public class Note {
+    private long id;
     private String text;
+
+    public Note(long id, String text) {
+        this.id = id;
+        this.text = text;
+    }
 
     public Note(String text) {
         this.text = text;
+    }
+
+    public long getId() {
+        return id;
     }
 
     public String getText() {
@@ -41,13 +51,15 @@ public class Note {
         }
 
         Note note = (Note) o;
-        return Objects.equals(getText(), note.getText());
+        return getId() == note.getId()
+                && Objects.equals(getText(), note.getText());
 
     }
 
     @Override
     public int hashCode() {
         int result = 17;
+        result = 31 * result + (int) (getId() ^ (getId() >>> 32));
         result = 31 * result + Objects.hashCode(getText());
 
         return result;

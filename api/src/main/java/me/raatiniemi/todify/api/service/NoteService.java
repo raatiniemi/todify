@@ -27,15 +27,17 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.concurrent.atomic.AtomicLong;
 
 @RestController
 class NoteService {
+    private AtomicLong incrementalCounter = new AtomicLong();
     private Collection<Note> notes = new ArrayList<>();
 
     @ResponseStatus(code = HttpStatus.CREATED)
     @RequestMapping(method = RequestMethod.POST, value = "/todo")
     Note add(@RequestBody String text) {
-        Note note = new Note(text);
+        Note note = new Note(incrementalCounter.incrementAndGet(), text);
         notes.add(note);
 
         return note;

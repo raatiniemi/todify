@@ -76,6 +76,18 @@ public class NoteEqualsHashCodeTest {
                                 Boolean.TRUE,
                                 note,
                                 new Note("Note #1")
+                        },
+                        {
+                                "With different id",
+                                Boolean.FALSE,
+                                note,
+                                new Note(1, "Note #1")
+                        },
+                        {
+                                "With same id",
+                                Boolean.TRUE,
+                                new Note(1, "Note #1"),
+                                new Note(1, "Note #1")
                         }
                 }
         );
