@@ -41,11 +41,11 @@ public class NoteRestServiceTest {
 
     @Test
     public void add() {
-        String text = "Note #1";
+        Note note = new Note("Note #1");
 
-        service.add(text);
+        service.add(note);
 
-        verify(noteRepository).save(new Note(text));
+        verify(noteRepository).save(note);
     }
 
     @Test

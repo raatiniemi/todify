@@ -35,8 +35,8 @@ class NoteRestService {
 
     @ResponseStatus(code = HttpStatus.CREATED)
     @RequestMapping(method = RequestMethod.POST, value = "/todo")
-    Note add(@RequestBody String text) {
-        return noteRepository.save(new Note(text));
+    Note add(@RequestBody Note note) {
+        return noteRepository.save(note);
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/todo")
