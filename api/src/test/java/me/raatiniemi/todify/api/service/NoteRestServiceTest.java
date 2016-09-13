@@ -23,13 +23,19 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+
+import java.util.Collections;
 
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 @RunWith(JUnit4.class)
 public class NoteRestServiceTest {
+    private static final int PER_PAGE = 20;
+
     private NoteRepository noteRepository;
     private NoteRestService service;
 
@@ -50,9 +56,26 @@ public class NoteRestServiceTest {
 
     @Test
     public void get() {
-        service.get();
+        int page = 0;
+        Pageable pageable = new PageRequest(page, PER_PAGE);
+        when(noteRepository.findAll(pageable))
+                .thenReturn(new PageImpl<>(Collections.emptyList()));
 
-        verify(noteRepository).findAll();
+        service.get(page, PER_PAGE);
+
+        verify(noteRepository).findAll(pageable);
+    }
+
+    @Test
+    public void get_secondPage() {
+        int page = 1;
+        Pageable pageable = new PageRequest(page, PER_PAGE);
+        when(noteRepository.findAll(pageable))
+                .thenReturn(new PageImpl<>(Collections.emptyList()));
+
+        service.get(page, PER_PAGE);
+
+        verify(noteRepository).findAll(pageable);
     }
 
     @Test

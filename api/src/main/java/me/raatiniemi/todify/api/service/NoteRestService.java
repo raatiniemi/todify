@@ -20,6 +20,8 @@ package me.raatiniemi.todify.api.service;
 import me.raatiniemi.todify.api.model.Note;
 import me.raatiniemi.todify.api.repository.NoteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -40,8 +42,14 @@ class NoteRestService {
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/todo")
-    List<Note> get() {
-        return noteRepository.findAll();
+    List<Note> get(
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "per_page", defaultValue = "20") int perPage
+    ) {
+        Pageable pageRequest = new PageRequest(page, perPage);
+
+        return noteRepository.findAll(pageRequest)
+                .getContent();
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/todo/{id}")
