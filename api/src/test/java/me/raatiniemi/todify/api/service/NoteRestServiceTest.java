@@ -17,71 +17,107 @@
 
 package me.raatiniemi.todify.api.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import me.raatiniemi.todify.api.model.Note;
 import me.raatiniemi.todify.api.repository.NoteRepository;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.web.context.WebApplicationContext;
 
-import java.util.Collections;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
 
-@RunWith(JUnit4.class)
+@SuppressWarnings("SpringJavaAutowiredMembersInspection")
+@RunWith(SpringRunner.class)
+@SpringBootTest
+@WebAppConfiguration
 public class NoteRestServiceTest {
-    private static final int PER_PAGE = 20;
+    private static final MediaType expectedContentType;
 
+    static {
+        expectedContentType = new MediaType(
+                MediaType.APPLICATION_JSON.getType(),
+                MediaType.APPLICATION_JSON.getSubtype(),
+                Charset.forName("utf8")
+        );
+    }
+
+    private MockMvc mockMvc;
+
+    @Autowired
+    private WebApplicationContext context;
+
+    @Autowired
     private NoteRepository noteRepository;
-    private NoteRestService service;
+    private List<Note> notes = new ArrayList<>();
 
     @Before
     public void setUp() {
-        noteRepository = mock(NoteRepository.class);
-        service = new NoteRestService(noteRepository);
+        mockMvc = webAppContextSetup(context).build();
+
+        noteRepository.deleteAllInBatch();
+
+        notes = IntStream.of(1, 2)
+                .mapToObj(i -> new Note("Note " + i))
+                .map(note -> noteRepository.save(note))
+                .collect(Collectors.toList());
     }
 
     @Test
-    public void add() {
-        Note note = new Note("Note #1");
+    public void add() throws Exception {
+        mockMvc.perform(post("/todo").contentType(expectedContentType)
+                .content(json(new Note("Note #3"))))
+                .andExpect(status().isCreated());
+    }
 
-        service.add(note);
+    private String json(Object o) throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
 
-        verify(noteRepository).save(note);
+        return mapper.writeValueAsString(o);
     }
 
     @Test
-    public void get() {
-        int page = 0;
-        Pageable pageable = new PageRequest(page, PER_PAGE);
-        when(noteRepository.findAll(pageable))
-                .thenReturn(new PageImpl<>(Collections.emptyList()));
+    public void get_readSingleNote() throws Exception {
+        Note note = notes.get(0);
 
-        service.get(page, PER_PAGE);
-
-        verify(noteRepository).findAll(pageable);
+        mockMvc.perform(get("/todo/" + note.getId()))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(expectedContentType))
+                .andExpect(jsonPath("$.id", is((int) note.getId())))
+                .andExpect(jsonPath("$.text", is(note.getText())));
     }
 
     @Test
-    public void get_secondPage() {
-        int page = 1;
-        Pageable pageable = new PageRequest(page, PER_PAGE);
-        when(noteRepository.findAll(pageable))
-                .thenReturn(new PageImpl<>(Collections.emptyList()));
+    public void get_readNotes() throws Exception {
+        ResultActions resultActions = mockMvc.perform(get("/todo"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(expectedContentType))
+                .andExpect(jsonPath("$", hasSize(notes.size())));
 
-        service.get(page, PER_PAGE);
+        for (Note note : notes) {
+            String prefix = "$[" + notes.indexOf(note) + "]";
 
-        verify(noteRepository).findAll(pageable);
-    }
-
-    @Test
-    public void get_singular() {
-        service.get(1);
-
-        verify(noteRepository).findOne(eq(1L));
+            resultActions.andExpect(jsonPath(prefix + ".id", is((int) note.getId())))
+                    .andExpect(jsonPath(prefix + ".text", is(note.getText())));
+        }
     }
 }
